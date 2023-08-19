@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+
+  rinha-redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: '0.25GB'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      - rinha-net
+
+  db-rinha:
+    image: postgres:15.4
+    command: postgres -c 'max_connections=400'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: rinhadb
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: '1.5GB'
+    networks:
+      - rinha-net
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - '8082:8080'
+    networks:
+      - rinha-net
+
+networks:
+  rinha-net:
+    driver: bridge

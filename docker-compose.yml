@@ -1,0 +1,105 @@
+version: '3.5'
+services:
+  api1: # API - Instância 01
+    build:
+      context: .
+    container_name: api1
+    environment:
+        DB_HOST: db-rinha
+        REDIS_HOST: rinha-dis
+    depends_on:
+      - db-rinha
+      - rinha-dis
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: '0.5GB'
+    networks:
+      - rinha-net
+
+  api2: # API - Instância 01
+    build:
+      context: .
+    container_name: api2
+    environment:
+      DB_HOST: db-rinha
+      REDIS_HOST: rinha-dis
+    depends_on:
+      - db-rinha
+      - rinha-dis
+    expose:
+      - "8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: '0.5GB'
+    networks:
+      - rinha-net
+
+  nginx: # Load Balancer
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api1
+      - api2
+    ports:
+      - "9999:9999"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
+    networks:
+      - rinha-net
+
+  rinha-dis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.02'
+          memory: '0.25GB'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      - rinha-net
+
+  db-rinha: # Banco de dados
+    image: postgres:15.4
+    command: postgres -c 'max_connections=600'
+    expose:
+      - 5432
+#    ports:
+#      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: rinhadb
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: '0.6GB'
+    networks:
+      - rinha-net
+
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - '8082:8080'
+#    networks:
+#      - rinha-net
+
+networks:
+  rinha-net:

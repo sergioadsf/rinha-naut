@@ -1,0 +1,44 @@
+micronaut:
+  application:
+    name: rinhaNaut
+#  server:
+#    port: 9999
+datasources:
+  default:
+    enabled: true
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:`localhost`}:5432/rinhadb
+    db-type: postgres
+    username: postgres
+    password: 1234
+    dialect: POSTGRES
+flyway:
+  datasources:
+    default:
+      enabled: true
+      baseline-version: 0
+      baseline-on-migrate: true
+r2dbc:
+  datasources:
+    default:
+      options:
+        driver: pool
+        protocol:
+          postgres
+#        maxSize: 200
+#        initialSize: 50
+#        maxLifeTime: PT280S
+#        maxIdleTime: PT240S
+#        maxAcquireTime: PT6S
+#        poolName: r2dbc
+#        registerJmx: true
+      url: r2dbc:postgresql://${DB_HOST:`localhost`}:5432/rinhadb
+      username: postgres
+      password: '1234'
+netty:
+  default:
+    allocator:
+      max-order: 3
+redis:
+  uri: redis://${REDIS_HOST:`localhost`}
+
