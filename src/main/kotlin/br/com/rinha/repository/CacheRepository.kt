@@ -12,7 +12,7 @@ import java.util.UUID
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class CacheRepository(
     private val objectMapper: ObjectMapper,
-    private val redisConnection: StatefulRedisConnection<String, String>
+    redisConnection: StatefulRedisConnection<String, String>
 ) {
     private val connection = redisConnection.coroutines()
 
