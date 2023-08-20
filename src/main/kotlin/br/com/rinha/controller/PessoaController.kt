@@ -28,12 +28,6 @@ class PessoaController(
         return if (term.isNullOrBlank() || term.isEmpty()) {
             HttpResponse.badRequest()
         } else {
-//            val sql = "select * from pessoas where apelido like %$term% limit 5"
-//            r2dbcOperations.withConnection{c, p -> {
-//                val pub = c.createStatement(sql).execute()
-//                pub.
-//                return customers
-//            }}
 //            HttpResponse.ok(repository.findAll(Specifications.byTerm(term)))
             HttpResponse.ok(pessoaQuery.findByTerm(term))
         }
