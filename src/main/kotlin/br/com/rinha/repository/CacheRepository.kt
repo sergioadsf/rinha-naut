@@ -17,8 +17,9 @@ class CacheRepository(
     private val connection = redisConnection.coroutines()
 
     suspend fun save(pessoa: Pessoa) {
-        connection.set(pessoa.id!!.toString(), objectMapper.writeValueAsString(pessoa))
-        connection.set(pessoa.apelido!!, objectMapper.writeValueAsString(pessoa))
+        val srtPessoa = objectMapper.writeValueAsString(pessoa)
+        connection.set(pessoa.id!!.toString(), srtPessoa)
+        connection.set(pessoa.apelido!!, srtPessoa)
     }
 
     suspend fun getById(id: UUID): Pessoa {

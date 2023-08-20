@@ -12,5 +12,6 @@ EXPOSE 8080
 COPY /build/libs /app
 WORKDIR /app
 CMD java -jar rinha-naut-0.1-all.jar
+#CMD java -XX:MaxRAMPercentage=80.0 -jar rinha-naut-0.1-all.jar
 #CMD ["rinha-naut-0.1-all.jar"]
 
