@@ -12,8 +12,8 @@ services:
       - rinha-dis
     expose:
       - "8080"
-    ports:
-      - "8080:8080"
+#    ports:
+#      - "8080:8080"
     deploy:
       resources:
         limits:
@@ -67,7 +67,7 @@ services:
       resources:
         limits:
           cpus: '0.02'
-          memory: '0.25GB'
+          memory: '0.2GB'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
@@ -76,7 +76,8 @@ services:
 
   db-rinha: # Banco de dados
     image: postgres:15.4
-    command: postgres -c 'max_connections=600'
+#    command: postgres -c 'max_connections=600'
+#    command: postgres -c 'shared_buffers=256MB'
     expose:
       - 5432
 #    ports:
@@ -88,7 +89,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.8'
+          cpus: '1.0'
           memory: '0.6GB'
     networks:
       - rinha-net

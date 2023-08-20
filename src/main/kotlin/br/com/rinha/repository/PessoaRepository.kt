@@ -6,6 +6,7 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 
@@ -17,6 +18,8 @@ interface PessoaRepository : CoroutineCrudRepository<Pessoa, UUID>,
 
     @Query("SELECT p.* FROM Pessoas p WHERE p.apelido like '%:term%'", nativeQuery = true)
     suspend fun byTerm( term: String): List<Pessoa?>?
+//    @Query("SELECT * FROM Pessoas  WHERE termo like :term")
+//    fun findAllByTerm(term: String): Flow<Pessoa?>?
 
 //    suspend fun findAllByApelidoContainsOrNomeContainsOrStackContains(
 //        apelido: String?,

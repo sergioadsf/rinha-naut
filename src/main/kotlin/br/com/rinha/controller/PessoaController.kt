@@ -2,33 +2,40 @@ package br.com.rinha.controller
 
 import br.com.rinha.entities.Pessoa
 import br.com.rinha.repository.CacheRepository
+import br.com.rinha.repository.PessoaQuery
 import br.com.rinha.repository.PessoaRepository
 import br.com.rinha.repository.Specifications
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import reactor.core.publisher.Flux
 import java.net.URI
-import java.util.UUID
+import java.util.*
+
 
 @Controller("/pessoas")
 class PessoaController(
     private val repository: PessoaRepository,
-    private val cacheRepository: CacheRepository
+    private val cacheRepository: CacheRepository,
+    private val pessoaQuery: PessoaQuery,
 ) {
 
     @Get
-    suspend fun list(@QueryValue("t") term: String?): MutableHttpResponse<Flow<Pessoa?>?> {
+    suspend fun list(@QueryValue("t") term: String?): MutableHttpResponse<Flux<Pessoa?>?> {
         return if (term.isNullOrBlank() || term.isEmpty()) {
             HttpResponse.badRequest()
         } else {
-            HttpResponse.ok(repository.findAll(Specifications.byTerm(term)))
+//            val sql = "select * from pessoas where apelido like %$term% limit 5"
+//            r2dbcOperations.withConnection{c, p -> {
+//                val pub = c.createStatement(sql).execute()
+//                pub.
+//                return customers
+//            }}
+//            HttpResponse.ok(repository.findAll(Specifications.byTerm(term)))
+            HttpResponse.ok(pessoaQuery.findByTerm(term))
         }
     }
 

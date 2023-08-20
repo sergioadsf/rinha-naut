@@ -2,7 +2,7 @@ POST http://localhost:8080/pessoas
 Content-Type: application/json
 
 {
-    "apelido" : "josé1",
+    "apelido" : "josé",
     "nome" : "José Roberto",
     "nascimento" : "2000-10-01",
     "stack" : ["C#", "Node", "Oracle"]
