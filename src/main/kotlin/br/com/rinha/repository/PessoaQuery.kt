@@ -16,7 +16,6 @@ import java.util.function.BiFunction
 class PessoaQuery(
     private val r2dbcOperations: R2dbcOperations
 ) {
-
     companion object {
         val MAPPING_FUNCTION: BiFunction<Row, RowMetadata, Pessoa> = BiFunction<Row, RowMetadata, Pessoa> { row, _ ->
             val id: String? = row.get("id", String::class.java)
