@@ -14,8 +14,6 @@ import java.util.*
 @Controller("/pessoas")
 class PessoaController(
     private val repository: PessoaRepository,
-    private val cacheRepository: CacheRepository,
-//    private val cacheRepository: CacheLocalRepository,
     private val pessoaQuery: PessoaQuery,
     private val pessoaService: PessoaService,
 ) {
@@ -26,26 +24,15 @@ class PessoaController(
         return if (term.isNullOrBlank() || term.isEmpty()) {
             HttpResponse.badRequest()
         } else {
-//            HttpResponse.ok(repository.findAll(Specifications.byTerm(term)))
             HttpResponse.ok(pessoaQuery.findByTerm(term))
         }
     }
 
     @Post
     suspend fun save(pessoa: Pessoa): MutableHttpResponse<Unit> {
-//        if (pessoa.apelido == null || pessoa.nome == null
-//            || cacheRepository.getByApelido(pessoa.apelido)
-//        ) {
-//            return HttpResponse.unprocessableEntity()
-//        }
         return try {
             pessoa.id = UUID.randomUUID()
             repository.save(pessoa)
-//            cacheRepository.save(pessoa)
-//            pessoaService.saveAsync(pessoa)
-//            coroutineScope {
-//                async { repository.save(pessoa) }
-//            }
             HttpResponse.created(URI("/pessoas/" + pessoa.id))
         } catch (e: Exception) {
             HttpResponse.unprocessableEntity()
@@ -57,7 +44,6 @@ class PessoaController(
 
     @Get("/contagem-pessoas")
     suspend fun count() = repository.count().toString()
-
 
 }
 
