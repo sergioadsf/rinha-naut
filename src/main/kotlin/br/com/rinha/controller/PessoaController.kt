@@ -1,6 +1,7 @@
 package br.com.rinha.controller
 
 import br.com.rinha.entities.Pessoa
+import br.com.rinha.messages.RedisPubSub
 import br.com.rinha.repository.CacheRepository
 import br.com.rinha.repository.PessoaQuery
 import br.com.rinha.repository.PessoaRepository
@@ -21,8 +22,8 @@ class PessoaController(
     private val repository: PessoaRepository,
     private val cacheRepository: CacheRepository,
     private val pessoaQuery: PessoaQuery,
+    private val redisPubSub: RedisPubSub
 ) {
-
     @Get
     suspend fun list(@QueryValue("t") term: String?): MutableHttpResponse<Flux<Pessoa?>?> {
         return if (term.isNullOrBlank() || term.isEmpty()) {
@@ -41,8 +42,9 @@ class PessoaController(
         return try {
             pessoa.id = UUID.randomUUID()
             cacheRepository.save(pessoa)
+
             coroutineScope {
-                async { repository.save(pessoa) }
+                async { redisPubSub.send(pessoa) }
             }
             HttpResponse.created(URI("/pessoas/" + pessoa.id))
         } catch (e: Exception) {
