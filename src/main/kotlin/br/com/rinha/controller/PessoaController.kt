@@ -16,8 +16,8 @@ class PessoaController(
     private val repository: PessoaRepository,
     private val pessoaQuery: PessoaQuery,
     private val pessoaService: PessoaService,
+    private val cacheLocalRepository: CacheLocalRepository,
 ) {
-
 
     @Get
     suspend fun list(@QueryValue("t") term: String?): MutableHttpResponse<Flux<Pessoa?>?> {
@@ -30,9 +30,17 @@ class PessoaController(
 
     @Post
     suspend fun save(pessoa: Pessoa): MutableHttpResponse<Unit> {
+
+        if (pessoa.apelido.isNullOrEmpty() || pessoa.apelido.isEmpty() || pessoa.apelido.length > 32
+            || pessoa.nome.isNullOrEmpty() || pessoa.nome.isEmpty() || pessoa.nome.length > 100
+            || cacheLocalRepository.getByApelido(pessoa.apelido)
+        ) {
+            return HttpResponse.unprocessableEntity()
+        }
         return try {
             pessoa.id = UUID.randomUUID()
-            repository.save(pessoa)
+            cacheLocalRepository.save(pessoa)
+            pessoaService.saveAsync(pessoa)
             HttpResponse.created(URI("/pessoas/" + pessoa.id))
         } catch (e: Exception) {
             HttpResponse.unprocessableEntity()
@@ -40,7 +48,9 @@ class PessoaController(
     }
 
     @Get("/{id}")
-    suspend fun get(@PathVariable("id") id: UUID) = pessoaQuery.getById(id)
+    suspend fun get(@PathVariable("id") id: UUID) =
+        cacheLocalRepository.getById(id) ?:
+        pessoaQuery.getById(id)
 
     @Get("/contagem-pessoas")
     suspend fun count() = repository.count().toString()

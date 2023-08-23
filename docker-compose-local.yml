@@ -19,8 +19,8 @@ services:
 
   db-rinha:
     image: postgres:15.4
-#    command: postgres -c shared_buffers=256MB -c synchronous_commit=off
-    command: postgres -c shared_buffers=256MB
+#   command: 'postgres -c max_connections=200 -c shared_buffers=256MB -c synchronous_commit=off -c fsync=off -c full_page_writes=off'
+    command: postgres -c max_connections=1000 -c shared_buffers=256MB
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 #    command: postgres -c 'max_connections=400'
