@@ -8,6 +8,7 @@ import io.r2dbc.spi.Row
 import io.r2dbc.spi.RowMetadata
 import jakarta.inject.Singleton
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.LocalDate
 import java.util.*
 import java.util.function.BiFunction
@@ -27,14 +28,37 @@ class PessoaQuery(
         }
     }
 
-
     suspend fun findByTerm(term: String): Flux<Pessoa?>? {
-        val sql = "select * from pessoas where apelido like '%$term%' or nome like '%$term%' or stack like '%$term%' limit 5"
+//        val sql = "select * from pessoas where apelido like '%$term%' or nome like '%$term%' or stack like '%$term%' limit 50"
+        val sql = "select * from pessoas where TERMO like '%$term%' limit 50"
         return Flux.from(
             r2dbcOperations.withConnection { connection: Connection ->
                 Flux.from(
-                    connection.createStatement(sql).execute())
-                        .flatMap { r -> r.map(MAPPING_FUNCTION) }
+                    connection.createStatement(sql).execute()
+                )
+                    .flatMap { r -> r.map(MAPPING_FUNCTION) }
+            })
+    }
+
+    suspend fun getById(id: UUID): Mono<Pessoa?>? {
+        val sql = "select * from pessoas where id = '$id'"
+
+        return Mono.from(
+            r2dbcOperations.withConnection { connection: Connection ->
+                Mono.from(
+                    connection.createStatement(sql).execute()
+                ).flatMap { r -> Mono.from(r.map(MAPPING_FUNCTION)) }
+            })
+    }
+
+    suspend fun exists(apelido: String): Mono<Boolean> {
+        val sql = "select * from pessoas where apelido = $apelido"
+        return Mono.from(
+            r2dbcOperations.withConnection { connection: Connection ->
+                Mono.from(
+                    connection.createStatement(sql).execute()
+                )
+                    .map { true }
             })
     }
 }

@@ -25,13 +25,13 @@ r2dbc:
         driver: pool
         protocol:
           postgres
-#        maxSize: 200
-#        initialSize: 50
-#        maxLifeTime: PT280S
-#        maxIdleTime: PT240S
-#        maxAcquireTime: PT6S
-#        poolName: r2dbc
-#        registerJmx: true
+        maxSize: 50
+        initialSize: 5
+        maxLifeTime: PT280S
+        maxIdleTime: PT240S
+        maxAcquireTime: PT6S
+        poolName: r2dbc
+        registerJmx: true
       url: r2dbc:postgresql://${DB_HOST:`localhost`}:5432/rinhadb
       username: postgres
       password: '1234'
@@ -39,6 +39,4 @@ netty:
   default:
     allocator:
       max-order: 3
-redis:
-  uri: redis://${REDIS_HOST:`localhost`}
 

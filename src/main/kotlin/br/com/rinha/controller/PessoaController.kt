@@ -1,16 +1,11 @@
 package br.com.rinha.controller
 
 import br.com.rinha.entities.Pessoa
-import br.com.rinha.repository.CacheRepository
-import br.com.rinha.repository.PessoaQuery
-import br.com.rinha.repository.PessoaRepository
-import br.com.rinha.repository.Specifications
+import br.com.rinha.repository.*
+import br.com.rinha.service.PessoaService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import reactor.core.publisher.Flux
 import java.net.URI
 import java.util.*
@@ -19,8 +14,9 @@ import java.util.*
 @Controller("/pessoas")
 class PessoaController(
     private val repository: PessoaRepository,
-    private val cacheRepository: CacheRepository,
     private val pessoaQuery: PessoaQuery,
+    private val pessoaService: PessoaService,
+    private val cacheLocalRepository: CacheLocalRepository,
 ) {
 
     @Get
@@ -28,22 +24,23 @@ class PessoaController(
         return if (term.isNullOrBlank() || term.isEmpty()) {
             HttpResponse.badRequest()
         } else {
-//            HttpResponse.ok(repository.findAll(Specifications.byTerm(term)))
             HttpResponse.ok(pessoaQuery.findByTerm(term))
         }
     }
 
     @Post
     suspend fun save(pessoa: Pessoa): MutableHttpResponse<Unit> {
-        if (pessoa.apelido == null || pessoa.nome == null || cacheRepository.getByApelido(pessoa.apelido)) {
+
+        if (pessoa.apelido.isNullOrEmpty() || pessoa.apelido.isEmpty() || pessoa.apelido.length > 32
+            || pessoa.nome.isNullOrEmpty() || pessoa.nome.isEmpty() || pessoa.nome.length > 100
+            || cacheLocalRepository.getByApelido(pessoa.apelido)
+        ) {
             return HttpResponse.unprocessableEntity()
         }
         return try {
             pessoa.id = UUID.randomUUID()
-            cacheRepository.save(pessoa)
-            coroutineScope {
-                async { repository.save(pessoa) }
-            }
+            cacheLocalRepository.save(pessoa)
+            pessoaService.saveAsync(pessoa)
             HttpResponse.created(URI("/pessoas/" + pessoa.id))
         } catch (e: Exception) {
             HttpResponse.unprocessableEntity()
@@ -51,9 +48,12 @@ class PessoaController(
     }
 
     @Get("/{id}")
-    suspend fun get(@PathVariable("id") id: UUID): Pessoa? = cacheRepository.getById(id)
+    suspend fun get(@PathVariable("id") id: UUID) =
+        cacheLocalRepository.getById(id) ?:
+        pessoaQuery.getById(id)
 
     @Get("/contagem-pessoas")
     suspend fun count() = repository.count().toString()
+
 }
 

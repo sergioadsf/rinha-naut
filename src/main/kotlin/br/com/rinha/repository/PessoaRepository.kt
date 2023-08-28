@@ -14,5 +14,6 @@ interface PessoaRepository : CoroutineCrudRepository<Pessoa, UUID>,
     CoroutineJpaSpecificationExecutor<Pessoa> {
     @Query("SELECT * FROM Pessoas  WHERE id::uuid = :ids")
     suspend fun getById(ids: UUID): Pessoa?
+    fun existsByApelido(apelido: String): Boolean
 }
 
