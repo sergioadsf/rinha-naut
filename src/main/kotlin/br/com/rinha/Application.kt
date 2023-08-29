@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
     build()
         .args(*args)
         .packages("br.com.rinha")
-        .eagerInitConfiguration(true)
+//        .eagerInitConfiguration(true)
         .start()
 }
 

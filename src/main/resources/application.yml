@@ -1,8 +1,11 @@
 micronaut:
   application:
     name: rinhaNaut
-#  server:
-#    port: 9999
+  server:
+    port: 8080
+  executors:
+    dispatcher:
+      type: scheduled
 datasources:
   default:
     enabled: true

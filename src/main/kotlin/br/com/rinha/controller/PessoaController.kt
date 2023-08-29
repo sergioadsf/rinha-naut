@@ -42,10 +42,6 @@ class PessoaController(
         return try {
             pessoa.id = UUID.randomUUID()
             cacheRepository.save(pessoa)
-
-            coroutineScope {
-                async { redisPubSub.send(pessoa) }
-            }
             HttpResponse.created(URI("/pessoas/" + pessoa.id))
         } catch (e: Exception) {
             HttpResponse.unprocessableEntity()
